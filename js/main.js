@@ -2,7 +2,8 @@ import { LitElement, html } from '/vendor/beaker-app-stdlib/vendor/lit-element/l
 import { repeat } from '/vendor/beaker-app-stdlib/vendor/lit-element/lit-html/directives/repeat.js'
 import { ViewThreadPopup } from '/vendor/beaker-app-stdlib/js/com/popups/view-thread.js'
 import * as toast from '/vendor/beaker-app-stdlib/js/com/toast.js'
-import { pluralize, getOrigin } from '/vendor/beaker-app-stdlib/js/strings.js'
+import { getAvailableName } from '/vendor/beaker-app-stdlib/js/fs.js'
+import { pluralize, getOrigin, createResourceSlug } from '/vendor/beaker-app-stdlib/js/strings.js'
 import { typeToQuery } from '/vendor/beaker-app-stdlib/js/records.js'
 import * as QP from './lib/qp.js'
 import css from '../css/main.css.js'
@@ -409,11 +410,14 @@ class SocialApp extends LitElement {
     e.preventDefault()
     site.subscribed = true
     this.requestUpdate()
-    await beaker.subscriptions.add({
+
+    var drive = beaker.hyperdrive.drive(this.profile.url)
+    var slug = createResourceSlug(site.url, site.title)
+    var filename = await getAvailableName('/subscriptions', slug, drive, 'goto') // avoid collisions
+    await drive.writeFile(`/subscriptions/${filename}`, '', {metadata: {
       href: site.url,
-      title: site.title,
-      site: this.profile.url
-    })
+      title: site.title
+    }})
     // wait 1s then replace/remove the suggestion
     setTimeout(() => {
       this.suggestedSites = this.suggestedSites.filter(s => s !== site)
