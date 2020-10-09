@@ -1,8 +1,8 @@
-import {css} from 'beaker://app-stdlib/vendor/lit-element/lit-element.js'
-import commonCSS from 'beaker://app-stdlib/css/common.css.js'
-import buttonsCSS from 'beaker://app-stdlib/css/buttons2.css.js'
-import tooltipCSS from 'beaker://app-stdlib/css/tooltip.css.js'
-import spinnerCSS from 'beaker://app-stdlib/css/com/spinner.css.js'
+import {css} from '/vendor/beaker-app-stdlib/vendor/lit-element/lit-element.js'
+import commonCSS from '/vendor/beaker-app-stdlib/css/common.css.js'
+import buttonsCSS from '/vendor/beaker-app-stdlib/css/buttons2.css.js'
+import tooltipCSS from '/vendor/beaker-app-stdlib/css/tooltip.css.js'
+import spinnerCSS from '/vendor/beaker-app-stdlib/css/com/spinner.css.js'
 
 const cssStr = css`
 ${commonCSS}
@@ -260,7 +260,6 @@ beaker-sites-list {
 }
 
 .intro .explainer {
-  background: var(--bg-color--light);
   padding: 10px;
   font-size: 18px;
   text-align: center;
@@ -269,10 +268,6 @@ beaker-sites-list {
 .intro h4 {
   font-size: 21px;
   margin: 22px 0 10px;
-}
-
-.intro section p {
-  font-size: 15px;
 }
 
 .intro a {
@@ -288,80 +283,16 @@ beaker-sites-list {
   font-size: 15px;
 }
 
-.intro section {
-  display: flex;
-  align-items: flex-start;
-  margin: 0;
-  padding: 0 0 5px;
-  border: 1px solid var(--border-color--default);
-  border-bottom-width: 0;
-}
-
-.intro section:last-child {
-  border-bottom-width: 1px;
-}
-
-.intro .icon {
-  font-size: 32px;
-  width: 80px;
-  height: 70px;
+.intro .sign-in {
+  background: var(--bg-color--secondary);
+  padding: 10px;
+  width: 200px;
+  margin: 0 auto;
   text-align: center;
-  line-height: 70px;
-  color: inherit;
 }
 
-.intro .icon .fa-user-plus {
-  font-size: 31px;
-}
-
-.intro .suggested-sites {
-  display: grid;
-  grid-template-columns: repeat(2, 220px);
-  grid-template-rows: auto auto;
-  align-items: baseline;
-  gap: 10px;
-  margin: 30px 2px 30px;
-}
-
-.intro .suggested-sites .site {
-  margin: 0px;
-  padding: 16px;
-  background: var(--bg-color--default);
-  border-radius: 4px;
-  border: 1px solid var(--border-color--light);
-}
-
-.intro .suggested-sites .site .title a {
-  font-size: 16px;
-}
-
-.intro .suggested-sites .site .description {
-  margin: 4px 0 10px;
-}
-
-.intro .suggested-sites .site button {
-  display: block;
-  width: 100%;
-  text-align: center;
-  font-size: 13px;
-}
-
-.intro .suggested-sites .site .subscribers {
-  text-align: center;
-  margin-top: 5px;
-  padding: 4px 0;
-  border-radius: 4px;
-  background: var(--bg-color--light);
-  color: var(--text-color--light);
-}
-
-.intro .btn-group {
-  white-space: nowrap;
-  margin: 10px -12px;
-}
-
-.intro .btn-group button {
-  font-size: 15px;
+.intro .sign-in button {
+  margin-right: 5px;
 }
 
 .empty {
