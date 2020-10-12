@@ -302,6 +302,7 @@ beaker-sites-list {
   padding: 160px 0px 170px;
   background: var(--bg-color--light);
   text-align: center;
+  margin: 10px 0;
 }
 
 .empty :-webkit-any(.fas, .far) {

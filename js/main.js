@@ -358,6 +358,14 @@ class SocialApp extends LitElement {
         </div>
       `
     }
+    if (location.pathname.startsWith('/notifications')) {
+      return html`
+        <div class="empty">
+          <div class="fas fa-bell"></div>
+          <div>No notifications</div>
+        </div>
+      `
+    }
     return html`
       <div class="empty">
         <div class="fas fa-stream"></div>
