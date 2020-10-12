@@ -38,7 +38,8 @@ class SocialApp extends LitElement {
       suggestedSites: {type: Array},
       isComposingPost: {type: Boolean},
       searchQuery: {type: String},
-      isEmpty: {type: Boolean}
+      isEmpty: {type: Boolean},
+      numNewItems: {type: Number}
     }
   }
 
@@ -55,6 +56,8 @@ class SocialApp extends LitElement {
     this.isComposingPost = false
     this.searchQuery = ''
     this.isEmpty = false
+    this.numNewItems = 0
+    this.loadTime = Date.now()
     this.notificationsClearTime = +localStorage.getItem('notificationsClearTime') || 1
     this.cachedNotificationsClearTime = this.notificationsClearTime
 
@@ -63,16 +66,11 @@ class SocialApp extends LitElement {
       this.loadSuggestions()
     })
 
+    setInterval(this.checkNewItems.bind(this), 5e3)
     setInterval(this.checkNotifications.bind(this), 5e3)
 
     window.addEventListener('popstate', (event) => {
       this.configFromQP()
-    })
-
-    window.addEventListener('focus', e => {
-      if (!this.searchQuery) {
-        this.load()
-      }
     })
   }
 
@@ -96,6 +94,8 @@ class SocialApp extends LitElement {
     this.profile = this.session.user
     this.checkNotifications()
     if (this.shadowRoot.querySelector('beaker-record-feed')) {
+      this.loadTime = Date.now()
+      this.numNewItems = 0
       this.shadowRoot.querySelector('beaker-record-feed').load({clearCurrent})
     }
     if (location.pathname === '/notifications') {
@@ -103,6 +103,25 @@ class SocialApp extends LitElement {
       localStorage.setItem('notificationsClearTime', '' + this.notificationsClearTime)
       setTimeout(() => {this.unreadNotificationCount = 0}, 2e3)
     }
+  }
+
+  async checkNewItems () {
+    if (!this.session) return
+    if (location.pathname === '/notifications') {
+      this.numNewItems = this.unreadNotificationCount
+      return
+    }
+    var query = PATH_QUERIES[location.pathname.slice(1) || 'all']
+    if (!query) return
+    var {count} = await beaker.index.gql(`
+      query NewItems ($paths: [String!]!, $loadTime: Long!) {
+        count: recordCount(
+          paths: $paths
+          after: {key: crtime, value: $loadTime}
+        )
+      }
+    `, {paths: query, loadTime: this.loadTime})
+    this.numNewItems = count
   }
 
   async checkNotifications () {
@@ -285,6 +304,9 @@ class SocialApp extends LitElement {
               `}
             </div>
             ${this.isEmpty ? this.renderEmptyMessage() : ''}
+            <div class="reload-page ${this.numNewItems > 0 ? 'visible' : ''}" @click=${e => this.load()}>
+              ${this.numNewItems} new ${pluralize(this.numNewItems, 'update')}
+            </div>
             <beaker-record-feed
               .pathQuery=${PATH_QUERIES[location.pathname.slice(1) || 'all']}
               .notifications=${location.pathname === '/notifications' ? {unreadSince: this.cachedNotificationsClearTime} : undefined}
@@ -428,8 +450,8 @@ class SocialApp extends LitElement {
     await beaker.session.request({
       permissions: {
         publicFiles: [
-          {path:'/subscriptions/*.goto', access: 'write'},
-          {path:'/microblog/*.md', access: 'write'},
+          {path: '/subscriptions/*.goto', access: 'write'},
+          {path: '/microblog/*.md', access: 'write'},
           {path: '/comments/*.md', access: 'write'},
           {path: '/votes/*.goto', access: 'write'}
         ]

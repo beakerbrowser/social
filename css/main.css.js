@@ -310,5 +310,28 @@ beaker-sites-list {
   margin: 0 0 30px;
 }
 
+.reload-page {
+  background: var(--bg-color--secondary);
+  text-align: center;
+  margin: 8px 0 8px 45px;
+  border-radius: 4px;
+  color: var(--text-color--link);
+  font-size: 15px;
+  cursor: pointer;
+  overflow: hidden;
+  line-height: 40px;
+
+  transition: height 0.2s;
+  height: 0px;
+}
+
+.reload-page.visible {
+  height: 40px;
+}
+
+.reload-page:hover {
+  text-decoration: underline;
+}
+
 `
 export default cssStr
