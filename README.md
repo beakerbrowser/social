@@ -1,4 +1,4 @@
-# Beaker Social
+# Beaker Timeline
 
 ![img/social.png](img/social.png)
 

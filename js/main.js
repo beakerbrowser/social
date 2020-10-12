@@ -29,7 +29,7 @@ const PATH_QUERIES = {
   ]
 }
 
-class SocialApp extends LitElement {
+class TimelineApp extends LitElement {
   static get properties () {
     return {
       session: {type: Object},
@@ -139,9 +139,9 @@ class SocialApp extends LitElement {
     `, {profileUrl: this.profile.url, clearTime: this.notificationsClearTime})
     this.unreadNotificationCount = count
     if (this.unreadNotificationCount > 0) {
-      document.title = `Beaker Social (${this.unreadNotificationCount})`
+      document.title = `Beaker Timeline (${this.unreadNotificationCount})`
     } else {
-      document.title = `Beaker Social`
+      document.title = `Beaker Timeline`
     }
   }
 
@@ -379,7 +379,7 @@ class SocialApp extends LitElement {
       <div class="intro">
         <div class="explainer">
           <img src="/img/social">
-          <h3>Welcome to Beaker Social!</h3>
+          <h3>Welcome to Beaker Timeline!</h3>
           <p>Share posts on your feed and stay connected with friends.</p>
           <p>(You know. Like Twitter.)</p>
         </div>
@@ -469,4 +469,4 @@ class SocialApp extends LitElement {
   }
 }
 
-customElements.define('social-app', SocialApp)
+customElements.define('timeline-app', TimelineApp)
