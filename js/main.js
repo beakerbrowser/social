@@ -111,6 +111,7 @@ class TimelineApp extends LitElement {
       this.numNewItems = this.unreadNotificationCount
       return
     }
+    if (location.pathname === '/search') return
     var query = PATH_QUERIES[location.pathname.slice(1) || 'all']
     if (!query) return
     var {count} = await beaker.index.gql(`
