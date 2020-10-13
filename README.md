@@ -1,6 +1,6 @@
 # Beaker Timeline
 
-![img/social.png](img/social.png)
+![thumb.png](thumb.png)
 
 Peer-to-peer social media. A [Beaker](https://github.com/beakerbrowser/beaker) application.
 

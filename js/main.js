@@ -140,9 +140,9 @@ class TimelineApp extends LitElement {
     `, {profileUrl: this.profile.url, clearTime: this.notificationsClearTime})
     this.unreadNotificationCount = count
     if (this.unreadNotificationCount > 0) {
-      document.title = `Beaker Timeline (${this.unreadNotificationCount})`
+      document.title = `Timeline (${this.unreadNotificationCount})`
     } else {
-      document.title = `Beaker Timeline`
+      document.title = `Timeline`
     }
   }
 
