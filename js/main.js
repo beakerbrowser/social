@@ -19,8 +19,7 @@ const PATH_QUERIES = {
       typeToQuery('comment')
     ]
   },
-  all: [typeToQuery('microblogpost')],
-  comments: [typeToQuery('comment')],
+  all: [typeToQuery('microblogpost'), typeToQuery('comment')],
   notifications: [
     typeToQuery('microblogpost'),
     typeToQuery('comment'),
@@ -28,6 +27,7 @@ const PATH_QUERIES = {
     typeToQuery('vote')
   ]
 }
+const TITLE = document.title
 
 class TimelineApp extends LitElement {
   static get properties () {
@@ -140,9 +140,9 @@ class TimelineApp extends LitElement {
     `, {profileUrl: this.profile.url, clearTime: this.notificationsClearTime})
     this.unreadNotificationCount = count
     if (this.unreadNotificationCount > 0) {
-      document.title = `Timeline (${this.unreadNotificationCount})`
+      document.title = `${TITLE} (${this.unreadNotificationCount})`
     } else {
-      document.title = `Timeline`
+      document.title = TITLE
     }
   }
 
@@ -233,8 +233,7 @@ class TimelineApp extends LitElement {
             <input @keyup=${this.onKeyupSearch} placeholder="Search" value=${this.searchQuery}>
           </div>
           <section class="nav">
-            ${navItem('/', html`<span class="fas fa-fw fa-stream"></span> Feed`)}
-            ${navItem('/comments', html`<span class="far fa-fw fa-comments"></span> Comments`)}
+            ${navItem('/', html`<span class="fas fa-fw fa-stream"></span> Timeline`)}
             ${navItem('/notifications', html`<span class="far fa-fw fa-bell"></span> Notifications${n}`)}
           </section>
           ${this.suggestedSites?.length > 0 ? html`

@@ -255,6 +255,10 @@ beaker-sites-list {
   margin-bottom: 10px;
 }
 
+beaker-record-feed {
+  --beaker-record-feed--default-margin: 20px;
+}
+
 .intro {
   margin: 10px 0;
 }
