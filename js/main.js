@@ -24,6 +24,7 @@ const PATH_QUERIES = {
     typeToQuery('microblogpost'),
     typeToQuery('comment'),
     typeToQuery('subscription'),
+    typeToQuery('tag'),
     typeToQuery('vote')
   ]
 }
@@ -36,8 +37,10 @@ class TimelineApp extends LitElement {
       profile: {type: Object},
       unreadNotificationCount: {type: Number},
       suggestedSites: {type: Array},
+      latestTags: {type: Array},
       isComposingPost: {type: Boolean},
       searchQuery: {type: String},
+      tagFilter: {type: Array},
       isEmpty: {type: Boolean},
       numNewItems: {type: Number}
     }
@@ -53,8 +56,10 @@ class TimelineApp extends LitElement {
     this.profile = undefined
     this.unreadNotificationCount = 0
     this.suggestedSites = undefined
+    this.latestTags = []
     this.isComposingPost = false
     this.searchQuery = ''
+    this.tagFilter = undefined
     this.isEmpty = false
     this.numNewItems = 0
     this.loadTime = Date.now()
@@ -76,6 +81,7 @@ class TimelineApp extends LitElement {
 
   configFromQP () {
     this.searchQuery = QP.getParam('q', '')
+    this.tagFilter = QP.getParam('tag') ? [QP.getParam('tag')] : undefined
     
     if (this.searchQuery) {
       this.updateComplete.then(() => {
@@ -86,7 +92,17 @@ class TimelineApp extends LitElement {
 
   async load ({clearCurrent} = {clearCurrent: false}) {
     if (!this.session) {
-      this.session = await beaker.session.get()
+      this.session = await beaker.session.get({
+        permissions: {
+          publicFiles: [
+            {path: '/subscriptions/*.goto', access: 'write'},
+            {path: '/microblog/*.md', access: 'write'},
+            {path: '/comments/*.md', access: 'write'},
+            {path: '/tags/*.goto', access: 'write'},
+            {path: '/votes/*.goto', access: 'write'}
+          ]
+        }
+      })
     }
     if (!this.session) {
       return this.requestUpdate()
@@ -102,6 +118,22 @@ class TimelineApp extends LitElement {
       this.notificationsClearTime = Date.now()
       localStorage.setItem('notificationsClearTime', '' + this.notificationsClearTime)
       setTimeout(() => {this.unreadNotificationCount = 0}, 2e3)
+    }
+    if (this.latestTags.length === 0) {
+      let {tagRecords} = await beaker.index.gql(`
+        query {
+          tagRecords: records (
+            paths: ["/tags/*.goto"]
+            links: {paths: ["/microblog/*.md", "/comments/*.md"]}
+            sort: crtime
+            reverse: true
+            limit: 50
+          ) {
+            metadata
+          }
+        }
+      `)
+      this.latestTags = Array.from(new Set(tagRecords.map(r => r.metadata['tag/id'])))
     }
   }
 
@@ -130,7 +162,7 @@ class TimelineApp extends LitElement {
     var {count} = await beaker.index.gql(`
       query Notifications ($profileUrl: String!, $clearTime: Long!) {
         count: recordCount(
-          paths: ["/microblog/*.md", "/comments/*.md", "/subscriptions/*.goto", "/votes/*.goto"]
+          paths: ["/microblog/*.md", "/comments/*.md", "/subscriptions/*.goto", "/tags/*.goto", "/votes/*.goto"]
           links: {origin: $profileUrl}
           excludeOrigins: [$profileUrl]
           indexes: ["local", "network"],
@@ -211,6 +243,12 @@ class TimelineApp extends LitElement {
   render () {
     return html`
       <link rel="stylesheet" href="/vendor/beaker-app-stdlib/css/fontawesome.css">
+      <div class="tags-bar">
+        <span class="fas fa-tag"></span>
+        ${repeat(this.latestTags, tag => tag, tag => html`
+          <a class="tag" href="/?tag=${encodeURIComponent(tag)}">${tag}</a>
+        `)}
+      </div>
       <main>
         ${this.renderCurrentView()}
       </main>
@@ -289,30 +327,36 @@ class TimelineApp extends LitElement {
       return html`
         <div class="twocol">
           <div>
-            <div class="composer">
-              <img class="thumb" src="${this.profile?.url}/thumb">
-              ${this.isComposingPost ? html`
-                <beaker-post-composer
-                  drive-url=${this.profile?.url || ''}
-                  @publish=${this.onPublishPost}
-                  @cancel=${this.onCancelPost}
-                ></beaker-post-composer>
-              ` : html`
-                <div class="compose-post-prompt" @click=${this.onComposePost}>
-                  What's new?
-                </div>
-              `}
-            </div>
+            ${this.tagFilter ? html`
+              <h2>#${this.tagFilter[0]} <a href="/"><span class="fas fa-times"></span></a></h2>
+            ` : html`
+              <div class="composer">
+                <img class="thumb" src="${this.profile?.url}/thumb">
+                ${this.isComposingPost ? html`
+                  <beaker-post-composer
+                    drive-url=${this.profile?.url || ''}
+                    @publish=${this.onPublishPost}
+                    @cancel=${this.onCancelPost}
+                  ></beaker-post-composer>
+                ` : html`
+                  <div class="compose-post-prompt" @click=${this.onComposePost}>
+                    What's new?
+                  </div>
+                `}
+              </div>
+            `}
             ${this.isEmpty ? this.renderEmptyMessage() : ''}
             <div class="reload-page ${this.numNewItems > 0 ? 'visible' : ''}" @click=${e => this.load()}>
               ${this.numNewItems} new ${pluralize(this.numNewItems, 'update')}
             </div>
             <beaker-record-feed
               .pathQuery=${PATH_QUERIES[location.pathname.slice(1) || 'all']}
+              .tagQuery=${this.tagFilter}
               .notifications=${location.pathname === '/notifications' ? {unreadSince: this.cachedNotificationsClearTime} : undefined}
               limit="50"
               @load-state-updated=${this.onFeedLoadStateUpdated}
               @view-thread=${this.onViewThread}
+              @view-tag=${this.onViewTag}
               @publish-reply=${this.onPublishReply}
               profile-url=${this.profile ? this.profile.url : ''}
             ></beaker-record-feed>
@@ -366,6 +410,14 @@ class TimelineApp extends LitElement {
         </div>
       `
     }
+    if (this.tagFilter) {
+      return html`
+        <div class="empty">
+          <div class="fas fa-hashtag"></div>
+          <div>No posts found in "#${this.tagFilter[0]}"</div>
+        </div>
+      `
+    }
     return html`
       <div class="empty">
         <div class="fas fa-stream"></div>
@@ -378,7 +430,7 @@ class TimelineApp extends LitElement {
     return html`
       <div class="intro">
         <div class="explainer">
-          <img src="/img/social">
+          <img src="/thumb">
           <h3>Welcome to Beaker Timeline!</h3>
           <p>Share posts on your feed and stay connected with friends.</p>
           <p>(You know. Like Twitter.)</p>
@@ -413,8 +465,13 @@ class TimelineApp extends LitElement {
   onViewThread (e) {
     ViewThreadPopup.create({
       recordUrl: e.detail.record.url,
-      profileUrl: this.profile.url
+      profileUrl: this.profile.url,
+      onViewTag: this.onViewTag.bind(this)
     })
+  }
+
+  onViewTag (e) {
+    window.location = `/?tag=${encodeURIComponent(e.detail.tag)}`
   }
 
   onComposePost (e) {
@@ -461,6 +518,7 @@ class TimelineApp extends LitElement {
           {path: '/subscriptions/*.goto', access: 'write'},
           {path: '/microblog/*.md', access: 'write'},
           {path: '/comments/*.md', access: 'write'},
+          {path: '/tags/*.goto', access: 'write'},
           {path: '/votes/*.goto', access: 'write'}
         ]
       }

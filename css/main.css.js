@@ -23,6 +23,51 @@ input:focus {
   box-shadow: 0 0 2px #7599ff77;
 }
 
+.tags-bar {
+  background: var(--bg-color--secondary);
+  color: var(--text-color--default);
+  padding: 6px 8px;
+  font-size: 10px;
+  line-height: 1;
+  border-bottom: 1px solid var(--border-color--light);
+  margin-bottom: 24px;
+}
+
+.tags-bar a {
+  color: inherit;
+  margin-right: 4px;
+}
+
+.tags-bar a:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.tags-bar .fa-tag {
+  color: var(--text-color--pretty-light);
+  margin-right: 4px;
+  font-size: 9px;
+}
+
+.tags-bar .sep {
+  margin: 0px 4px;
+  font-size: 9px;
+  line-height: 8px;
+  position: relative;
+  top: -1px;
+}
+
+h2 {
+  margin: 0px 45px 0px;
+  letter-spacing: 1px;
+  font-size: 24px;
+}
+
+h2 a {
+  color: #5085ff;
+  font-size: 17px;
+}
+
 .composer {
   display: grid;
   grid-template-columns: 30px 1fr;
@@ -304,7 +349,7 @@ beaker-record-feed {
   letter-spacing: 0.7px;
   color: var(--text-color--light);
   padding: 160px 0px 170px;
-  background: var(--bg-color--light);
+  background: var(--bg-color--default);
   text-align: center;
   margin: 10px 0;
 }
