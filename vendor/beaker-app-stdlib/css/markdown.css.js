@@ -11,7 +11,7 @@ const cssStr = css`
 .markdown blockquote {
   border-left: 10px solid var(--bg-color--semi-light);
   margin: 0 0 0.6em;
-  padding: 10px 0px 10px 20px;
+  padding: 1px 0px 1px 16px;
   color: var(--text-color--light);
 }
 .subject-content .markdown blockquote + blockquote {
