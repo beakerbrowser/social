@@ -211,15 +211,6 @@ class PostComposer extends LitElement {
       this.draftText = this.editor.getValue()
     })
   }
-
-  updated () {
-    try {
-      let textarea = this.shadowRoot.querySelector('textarea')
-      textarea.focus()
-      textarea.style.height = 'auto'
-      textarea.style.height = textarea.scrollHeight + 5 + 'px'
-    } catch {}
-  }
   
   // events
   // =
