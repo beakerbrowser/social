@@ -5,7 +5,7 @@ import { BasePopup } from './base.js'
 import buttonsCSS from '../../../css/buttons2.css.js'
 import spinnerCSS from '../../../css/com/spinner.css.js'
 import popupsCSS from '../../../css/com/popups.css.js'
-import { toNiceUrl } from '../../strings.js'
+import '../img-fallbacks.js'
 
 // exported api
 // =
@@ -100,7 +100,10 @@ export class SitesListPopup extends BasePopup {
     const title = site.title || 'Untitled'
     return html`
       <a href=${site.url} class="site" title=${title} target="_blank">
-        <img class="thumb" src="${site.url}/thumb"/>
+        <beaker-img-fallbacks>
+          <img class="thumb" src="${site.url}/thumb" slot="img1">
+          <img class="thumb" src=${(new URL('../../../img/default-user-thumb', import.meta.url)).toString()} slot="img2">
+        </beaker-img-fallbacks>
         <span class="details">
           <span class="title">${title}</span>
         </span>
