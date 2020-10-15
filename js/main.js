@@ -125,7 +125,7 @@ class TimelineApp extends LitElement {
           tagRecords: records (
             paths: ["/tags/*.goto"]
             links: {paths: ["/microblog/*.md", "/comments/*.md"]}
-            sort: crtime
+            sort: "crtime"
             reverse: true
             limit: 50
           ) {
@@ -150,7 +150,7 @@ class TimelineApp extends LitElement {
       query NewItems ($paths: [String!]!, $loadTime: Long!) {
         count: recordCount(
           paths: $paths
-          after: {key: crtime, value: $loadTime}
+          after: {key: "crtime", value: $loadTime}
         )
       }
     `, {paths: query, loadTime: this.loadTime})
@@ -166,7 +166,7 @@ class TimelineApp extends LitElement {
           links: {origin: $profileUrl}
           excludeOrigins: [$profileUrl]
           indexes: ["local", "network"],
-          after: {key: crtime, value: $clearTime}
+          after: {key: "crtime", value: $clearTime}
         )
       }
     `, {profileUrl: this.profile.url, clearTime: this.notificationsClearTime})
@@ -195,7 +195,7 @@ class TimelineApp extends LitElement {
     }
     let {allSubscriptions, mySubscriptions} = await beaker.index.gql(`
       query Subs ($origin: String!) {
-        allSubscriptions: records(paths: ["/subscriptions/*.goto"] limit: 100 sort: crtime reverse: true) {
+        allSubscriptions: records(paths: ["/subscriptions/*.goto"] limit: 100 sort: "crtime" reverse: true) {
           metadata
         }
         mySubscriptions: records(paths: ["/subscriptions/*.goto"] origins: [$origin]) {
